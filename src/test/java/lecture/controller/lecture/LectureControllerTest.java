@@ -1,8 +1,11 @@
 package lecture.controller.lecture;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
 import lecture.domain.lecture.LectureService;
+import lecture.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,9 @@ class LectureControllerTest {
 
     @MockBean
     private LectureService lectureService;
+
+    @MockBean
+    private UserService userService;
 
     @Test
     @DisplayName("특강을 등록할 수 있다..")
@@ -197,6 +203,28 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("바인딩 오류"))
                 .andExpect(jsonPath("$.data.maxHeadCount").value("특강 최대 수용인원은 양수값이어야 합니다."));
+    }
+
+    @Test
+    @DisplayName("특강을 신청할 수 있다.")
+    void applyLecture() throws Exception {
+        //given
+        long userId = 1L;
+        long lectureId = 1L;
+        ApplyLectureRequest request = new ApplyLectureRequest(userId,lectureId);
+        //when
+        //then
+        mockMvc.perform(post("/lectures/apply")
+                .content(objectMapper.writeValueAsString(request))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
+
     }
 
 }

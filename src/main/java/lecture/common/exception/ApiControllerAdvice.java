@@ -26,4 +26,10 @@ public class ApiControllerAdvice {
 
         return ApiResponse.of(HttpStatus.BAD_REQUEST,"바인딩 오류",collect);
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RuntimeException.class)
+    public ApiResponse<Object> runTimeException(RuntimeException e){
+        return ApiResponse.of(HttpStatus.BAD_REQUEST,e.getMessage(),null);
+    }
 }
