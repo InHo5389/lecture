@@ -1,20 +1,17 @@
 package lecture.controller.lecture;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
+import lecture.controller.lecture.response.GetLectureResponse;
+import lecture.domain.applyhistory.ApplyHistory;
 import lecture.domain.lecture.Lecture;
 import lecture.domain.lecture.LectureService;
-import lecture.domain.lecture.applyhistory.ApplyHistory;
 import lecture.domain.lecture.dto.ApplyLectureDto;
 import lecture.domain.user.User;
 import lecture.domain.user.UserService;
-import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,10 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -224,18 +225,17 @@ class LectureControllerTest {
         long userId = 1L;
         long lectureId = 1L;
         ApplyLectureRequest request = new ApplyLectureRequest(userId,lectureId);
+        User user = new User(userId, "인호");
 
         Lecture lecture = Lecture.builder()
                 .id(lectureId)
                 .name("강의")
                 .description("강의")
-                .lectureDate(LocalDate.of(2024, 06, 20))
-                .lectureTime("13:00")
                 .maxHeadCount(30)
                 .applyHeadCount(0)
                 .build();
-        ApplyLectureDto dto = new ApplyLectureDto(new User(userId,"인호"),lecture,new ApplyHistory(userId,lectureId));
-        given(lectureService.applyLecture(anyLong(),anyLong(), ArgumentMatchers.any(LocalDateTime.class))).willReturn(dto);
+        ApplyLectureDto dto = new ApplyLectureDto(new User(userId,"인호"),lecture,new ApplyHistory(user,lecture));
+        given(lectureService.applyLecture(anyLong(),anyLong())).willReturn(dto);
         //when
         //then
         mockMvc.perform(post("/lectures/apply")
@@ -249,6 +249,24 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data").isMap());
 
+    }
+
+    @Test
+    @DisplayName("강의 시간과 목록을 조회할 수 있다.")
+    void getLectures() throws Exception {
+        //given
+        //when
+        //then
+        Lecture lecture1 = new Lecture(1L, "알고리즘 강의", "카카오 개발자가 알려주는 명확한 알고리즘", 2, 0,List.of());
+        Lecture lecture2 = new Lecture(2L, "자바 프로그래밍 강의", "자바 초보자를 위한 입문 강의", 3, 1,List.of());
+
+        when(lectureService.getLectures()).thenReturn(Arrays.asList(lecture1, lecture2));
+
+        mockMvc.perform(get("/lectures"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
 }

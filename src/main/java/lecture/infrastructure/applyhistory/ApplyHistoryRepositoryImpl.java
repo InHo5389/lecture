@@ -1,7 +1,7 @@
-package lecture.infrastructure.lecture.applyhistory;
+package lecture.infrastructure.applyhistory;
 
-import lecture.domain.lecture.applyhistory.ApplyHistory;
-import lecture.domain.lecture.applyhistory.ApplyHistoryRepository;
+import lecture.domain.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.ApplyHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

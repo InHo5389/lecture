@@ -1,6 +1,5 @@
-package lecture.infrastructure.lecture.applyhistory;
+package lecture.infrastructure.applyhistory;
 
-import lecture.domain.lecture.applyhistory.ApplyHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

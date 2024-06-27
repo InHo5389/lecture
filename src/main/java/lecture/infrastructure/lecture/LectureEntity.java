@@ -10,11 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 @Getter
 @Entity
 @Builder
@@ -28,8 +23,6 @@ public class LectureEntity {
 
     private String name;
     private String description;
-    private LocalDate lectureDate;
-    private String lectureTime;
     private int maxHeadCount;
     private int applyHeadCount;
 
@@ -37,8 +30,7 @@ public class LectureEntity {
         return Lecture.builder()
                 .id(id)
                 .name(name)
-                .lectureDate(lectureDate)
-                .lectureTime(lectureTime)
+                .description(description)
                 .maxHeadCount(maxHeadCount)
                 .applyHeadCount(applyHeadCount)
                 .build();
@@ -49,8 +41,6 @@ public class LectureEntity {
         lectureEntity.id = lecture.getId();
         lectureEntity.name = lecture.getName();
         lectureEntity.description = lecture.getDescription();
-        lectureEntity.lectureDate = lecture.getLectureDate();
-        lectureEntity.lectureTime = lecture.getLectureTime();
         lectureEntity.maxHeadCount = lecture.getMaxHeadCount();
         lectureEntity.applyHeadCount = lecture.getApplyHeadCount();
         return lectureEntity;

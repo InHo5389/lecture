@@ -1,7 +1,7 @@
 package lecture.domain.lecture.dto;
 
 import lecture.domain.lecture.Lecture;
-import lecture.domain.lecture.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.ApplyHistory;
 import lecture.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

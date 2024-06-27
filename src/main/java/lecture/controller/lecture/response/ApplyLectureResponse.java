@@ -1,7 +1,7 @@
 package lecture.controller.lecture.response;
 
 import lecture.domain.lecture.Lecture;
-import lecture.domain.lecture.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.ApplyHistory;
 import lecture.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +33,6 @@ public class ApplyLectureResponse {
                 .lectureId(lecture.getId())
                 .lectureName(lecture.getName())
                 .description(lecture.getDescription())
-                .lectureDate(lecture.getLectureDate())
-                .lectureTime(lecture.getLectureTime())
                 .createdAt(applyHistory.getCreateAt())
                 .build();
     }

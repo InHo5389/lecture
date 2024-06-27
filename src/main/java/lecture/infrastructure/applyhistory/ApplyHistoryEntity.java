@@ -1,7 +1,11 @@
-package lecture.infrastructure.lecture.applyhistory;
+package lecture.infrastructure.applyhistory;
 
 import jakarta.persistence.*;
-import lecture.domain.lecture.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.ApplyHistory;
+import lecture.domain.lecture.Lecture;
+import lecture.domain.user.User;
+import lecture.infrastructure.lecture.LectureEntity;
+import lecture.infrastructure.user.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,30 +27,32 @@ public class ApplyHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
-    private Long lectureId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private LectureEntity lecture;
 
     @CreatedDate
     private LocalDateTime createAt;
 
-    public ApplyHistoryEntity(Long userId, Long lectureId) {
-        this.userId = userId;
-        this.lectureId = lectureId;
+    public ApplyHistoryEntity(UserEntity user, LectureEntity lecture) {
+        this.user = user;
+        this.lecture = lecture;
     }
 
     public ApplyHistory toDomain() {
         return ApplyHistory.builder()
                 .id(id)
-                .userId(userId)
-                .lectureId(lectureId)
+                .user(user.toDomain())
+                .lecture(lecture.toDomain())
                 .build();
     }
 
     public static ApplyHistoryEntity from(ApplyHistory applyHistory) {
         ApplyHistoryEntity applyHistoryEntity = new ApplyHistoryEntity();
         applyHistoryEntity.id = applyHistoryEntity.getId();
-        applyHistoryEntity.userId = applyHistory.getUserId();
-        applyHistoryEntity.lectureId = applyHistory.getLectureId();
+        applyHistoryEntity.user = UserEntity.from(applyHistory.getUser());
+        applyHistoryEntity.lecture = LectureEntity.from(applyHistory.getLecture());
         return applyHistoryEntity;
     }
 }

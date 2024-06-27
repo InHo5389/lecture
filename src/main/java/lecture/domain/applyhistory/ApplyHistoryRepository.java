@@ -1,4 +1,4 @@
-package lecture.domain.lecture.applyhistory;
+package lecture.domain.applyhistory;
 
 import java.util.Optional;
 

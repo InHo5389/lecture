@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lecture.domain.lecture.Lecture;
+import lecture.domain.lecture.dto.CreateLectureDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,8 +34,17 @@ public class CreateLectureRequest {
         return Lecture.builder()
                 .name(name)
                 .description(description)
-                .lectureDate(lectureDate)
-                .lectureTime(lectureTime)
+                .maxHeadCount(maxHeadCount)
+                .applyHeadCount(applyHeadCount)
+                .build();
+    }
+
+    public CreateLectureDto toDto(){
+        return CreateLectureDto.builder()
+                .name(name)
+                .description(description)
+                .scheduleDate(lectureDate)
+                .scheduleTime(lectureTime)
                 .maxHeadCount(maxHeadCount)
                 .applyHeadCount(applyHeadCount)
                 .build();

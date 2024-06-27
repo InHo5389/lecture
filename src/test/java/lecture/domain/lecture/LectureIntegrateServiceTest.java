@@ -1,8 +1,8 @@
 package lecture.domain.lecture;
 
 import lecture.controller.lecture.request.ApplyLectureRequest;
-import lecture.domain.lecture.applyhistory.ApplyHistory;
-import lecture.domain.lecture.applyhistory.ApplyHistoryRepository;
+import lecture.domain.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.ApplyHistoryRepository;
 import lecture.domain.user.User;
 import lecture.domain.user.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -43,35 +43,9 @@ public class LectureIntegrateServiceTest {
     }
 
     @Test
-    @DisplayName("특강을 신청하면 신청 내역이 저장되어야 한다.")
-    void applyLecture() {
-        //given
-        long userId = 1L;
-        long lectureId = 1L;
-        LocalDateTime now = LocalDateTime.now();
-        userRepository.save(new User(userId, "인호"));
-        Lecture lecture = Lecture.builder()
-                .lectureDate(LocalDate.of(2024, 06, 01))
-                .lectureTime("13:00")
-                .maxHeadCount(30)
-                .applyHeadCount(0)
-                .build();
-        lectureRepository.save(lecture);
-
-        ApplyLectureRequest request = new ApplyLectureRequest(userId, lectureId);
-        lectureService.applyLecture(request.getUserId(),request.getLectureId(), now);
-        //when
-        ApplyHistory applyHistory = applyHistoryRepository.findByUserIdAndLectureId(userId, lectureId).get();
-        //then
-        assertThat(applyHistory.getLectureId()).isEqualTo(lectureId);
-        assertThat(applyHistory.getUserId()).isEqualTo(userId);
-    }
-
-    @Test
     @DisplayName("특강을 신청할때 동시에 30번 신청을 하면 신청인원이 30명이어야 한다.")
     void applyLectureFullApplyHeadCount() throws InterruptedException {
         //given
-        LocalDateTime now = LocalDateTime.now();
         long userId = 1L;
         long lectureId = 1L;
         int threadCount = 30;
@@ -82,8 +56,6 @@ public class LectureIntegrateServiceTest {
                 .id(lectureId)
                 .name("알고리즘 강의")
                 .description("카카오 개발자가 알려주는 명확한 알고리즘")
-                .lectureDate(LocalDate.of(2024, 06, 25))
-                .lectureTime("13:00")
                 .maxHeadCount(30)
                 .applyHeadCount(0)
                 .build();
@@ -96,7 +68,7 @@ public class LectureIntegrateServiceTest {
             long localUserId = userId + i;
             executorService.submit(()->{
                 try {
-                    lectureService.applyLecture(localUserId,lectureId,now);
+                    lectureService.applyLecture(localUserId,lectureId);
                 }catch (Exception e){
                     System.out.println("---------------------------------------");
                 }finally {
@@ -117,7 +89,6 @@ public class LectureIntegrateServiceTest {
     void applyLectureWithConcurrency() throws InterruptedException {
         //given
         AtomicBoolean exceptionThrown = new AtomicBoolean(false);
-        LocalDateTime now = LocalDateTime.now();
         long userId = 1L;
         long lectureId = 1L;
         int maxHeadCount = 4;
@@ -130,8 +101,6 @@ public class LectureIntegrateServiceTest {
                 .id(lectureId)
                 .name("알고리즘 강의")
                 .description("카카오 개발자가 알려주는 명확한 알고리즘")
-                .lectureDate(LocalDate.of(2024, 06, 25))
-                .lectureTime("13:00")
                 .maxHeadCount(maxHeadCount)
                 .applyHeadCount(0)
                 .build();
@@ -144,7 +113,7 @@ public class LectureIntegrateServiceTest {
             long localUserId = userId + i;
             executorService.submit(() -> {
                 try {
-                    lectureService.applyLecture(localUserId,lectureId,now);
+                    lectureService.applyLecture(localUserId,lectureId);
                 } catch (RuntimeException e) {
                     System.out.println("예외 발생");
                     exceptionThrown.set(true);
@@ -163,27 +132,24 @@ public class LectureIntegrateServiceTest {
     @DisplayName("특강을 신청할때 같은 유저가 똑같은 특강을 신청을 하면 예외가 발생하여야 한다.")
     void applyLectureSameUser() throws InterruptedException {
         //given
-        LocalDateTime now = LocalDateTime.now();
         long userId = 1L;
         long lectureId = 1L;
 
-        userRepository.save(new User(userId, "인호"));
+        User user = userRepository.save(new User(userId, "인호"));
 
         Lecture lecture = Lecture.builder()
                 .id(lectureId)
                 .name("알고리즘 강의")
                 .description("카카오 개발자가 알려주는 명확한 알고리즘")
-                .lectureDate(LocalDate.of(2024, 06, 25))
-                .lectureTime("13:00")
                 .maxHeadCount(30)
                 .applyHeadCount(0)
                 .build();
         lectureRepository.save(lecture);
 
-        applyHistoryRepository.save(new ApplyHistory(1L, userId, lectureId, LocalDateTime.now()));
+        applyHistoryRepository.save(new ApplyHistory(1L, user, lecture, LocalDateTime.now()));
         //when
         //then
-        assertThatThrownBy(()->lectureService.applyLecture(userId, lectureId,now))
+        assertThatThrownBy(()->lectureService.applyLecture(userId, lectureId))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("이미 등록한 특강입니다.");
     }
@@ -193,8 +159,6 @@ public class LectureIntegrateServiceTest {
                 .id(lectureId)
                 .name(name)
                 .description(description)
-                .lectureDate(lectureDate)
-                .lectureTime(lectureTime)
                 .maxHeadCount(maxHeadCount)
                 .applyHeadCount(applyHeadCount)
                 .build();
