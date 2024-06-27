@@ -15,11 +15,11 @@ public class UserServiceImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        return userJpaRepository.save(user);
+        return userJpaRepository.save(UserEntity.from(user)).toDomain();
     }
 
     @Override
     public Optional<User> findById(long userId) {
-        return userJpaRepository.findById(userId);
+        return userJpaRepository.findById(userId).map(UserEntity::toDomain);
     }
 }

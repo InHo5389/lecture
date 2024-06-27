@@ -6,7 +6,9 @@ import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
 import lecture.controller.lecture.response.ApplyLectureResponse;
 import lecture.controller.lecture.response.CreateLectureResponse;
+import lecture.domain.lecture.Lecture;
 import lecture.domain.lecture.LectureService;
+import lecture.domain.lecture.dto.ApplyLectureDto;
 import lecture.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +27,15 @@ public class LectureController {
 
     @PostMapping("/lectures")
     public ApiResponse<CreateLectureResponse> createLecture(@RequestBody @Valid CreateLectureRequest request) {
-        return ApiResponse.ok(lectureService.createLecture(request));
+        Lecture lecture = lectureService.createLecture(request.toEntity());
+        return ApiResponse.ok(CreateLectureResponse.of(lecture));
     }
 
     @PostMapping("/lectures/apply")
-    public ApiResponse<ApplyLectureResponse> applyLecture(@RequestBody @Valid ApplyLectureRequest request) {
+    public ApiResponse<ApplyLectureResponse> applyLecture(@RequestBody ApplyLectureRequest request) {
         LocalDateTime now = LocalDateTime.now();
-        return ApiResponse.ok(lectureService.applyLecture(request,now));
+        ApplyLectureDto dto = lectureService.applyLecture(request.getUserId(), request.getLectureId(), now);
+        return ApiResponse.ok(ApplyLectureResponse.of(dto.getUser(), dto.getLecture(), dto.getApplyHistory()));
     }
 
     // todo 삭제

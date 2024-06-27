@@ -15,16 +15,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Lecture {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String description;
     private LocalDate lectureDate;
@@ -32,7 +28,8 @@ public class Lecture {
     private int maxHeadCount;
     private int applyHeadCount;
 
-    public void apply(LocalDateTime now){
+    public boolean apply(LocalDateTime now){
+        boolean applyResult = true;
         LocalDateTime lectureDateTime = getLocalDateTime();
         if (lectureDateTime.isAfter(now)){
             throw new RuntimeException("특강 신청 시간이 아닙니다.");
@@ -42,6 +39,7 @@ public class Lecture {
             throw new RuntimeException("특강 수강 인원이 초과되었습니다.");
         }
         applyHeadCount++;
+        return applyResult;
     }
 
     private LocalDateTime getLocalDateTime(){
@@ -49,3 +47,5 @@ public class Lecture {
         return LocalDateTime.of(lectureDate,time);
     }
 }
+
+

@@ -49,12 +49,12 @@ class LectureServiceTest {
         Lecture lecture = createLecture(1L, request);
         when(lectureRepository.save(any())).thenReturn(lecture);
         //when
-        CreateLectureResponse response = lectureService.createLecture(request);
+        Lecture savedLecture = lectureService.createLecture(request.toEntity());
         //then
-        assertThat(response)
+        assertThat(savedLecture)
                 .extracting("id", "name", "description", "lectureDate", "lectureTime", "maxHeadCount", "applyHeadCount")
-                .contains(response.getId(), response.getName(), response.getDescription(), response.getLectureDate()
-                        , response.getLectureTime(), response.getMaxHeadCount(), response.getApplyHeadCount());
+                .contains(savedLecture.getId(), savedLecture.getName(), savedLecture.getDescription(), savedLecture.getLectureDate()
+                        , savedLecture.getLectureTime(), savedLecture.getMaxHeadCount(), savedLecture.getApplyHeadCount());
     }
 
     @Test
@@ -69,7 +69,7 @@ class LectureServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.empty());
         //when
         //then
-        assertThatThrownBy(()->lectureService.applyLecture(request,now))
+        assertThatThrownBy(()->lectureService.applyLecture(request.getUserId(),request.getLectureId(),now))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("등록된 유저가 없습니다.");
     }
@@ -87,7 +87,7 @@ class LectureServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         //when
         //then
-        assertThatThrownBy(()->lectureService.applyLecture(request,now))
+        assertThatThrownBy(()->lectureService.applyLecture(request.getUserId(),request.getLectureId(),now))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("등록된 강의가 없습니다.");
     }
@@ -115,7 +115,7 @@ class LectureServiceTest {
         given(applyHistoryRepository.save(any())).willReturn(applyHistory);
         //when
         //then
-        lectureService.applyLecture(request,now);
+        lectureService.applyLecture(request.getUserId(),request.getLectureId(),now);
     }
 
     private Lecture createLecture(long id, CreateLectureRequest request) {

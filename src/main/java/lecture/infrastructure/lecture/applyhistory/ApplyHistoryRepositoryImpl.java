@@ -16,12 +16,12 @@ public class ApplyHistoryRepositoryImpl implements ApplyHistoryRepository {
 
     @Override
     public ApplyHistory save(ApplyHistory applyHistory) {
-        return applyHistoryJpaRepository.save(applyHistory);
+        return applyHistoryJpaRepository.save(ApplyHistoryEntity.from(applyHistory)).toDomain();
     }
 
     @Override
     public Optional<ApplyHistory> findByUserIdAndLectureId(Long userId, Long lectureId) {
-        return applyHistoryJpaRepository.findByUserIdAndLectureId(userId, lectureId);
+        return applyHistoryJpaRepository.findByUserIdAndLectureId(userId, lectureId).map(ApplyHistoryEntity::toDomain);
     }
 
     @Override

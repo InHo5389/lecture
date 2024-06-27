@@ -15,17 +15,17 @@ public class LectureRepositoryImpl implements LectureRepository {
 
     @Override
     public Lecture save(Lecture lecture) {
-        return lectureJpaRepository.save(lecture);
+        return lectureJpaRepository.save(LectureEntity.from(lecture)).toDomain();
     }
 
     @Override
     public Optional<Lecture> findById(long lectureId) {
-        return lectureJpaRepository.findById(lectureId);
+        return lectureJpaRepository.findById(lectureId).map(LectureEntity::toDomain);
     }
 
     @Override
     public Optional<Lecture> findByWithPessimisticLock(Long lectureId) {
-        return lectureJpaRepository.findByWithPessimisticLock(lectureId);
+        return lectureJpaRepository.findByWithPessimisticLock(lectureId).map(LectureEntity::toDomain);
     }
 
     @Override

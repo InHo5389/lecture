@@ -9,4 +9,5 @@ public class ApplyLectureRequest {
 
     private Long userId;
     private Long lectureId;
+
 }

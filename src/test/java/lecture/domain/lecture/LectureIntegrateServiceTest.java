@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 public class LectureIntegrateServiceTest {
@@ -59,7 +59,7 @@ public class LectureIntegrateServiceTest {
         lectureRepository.save(lecture);
 
         ApplyLectureRequest request = new ApplyLectureRequest(userId, lectureId);
-        lectureService.applyLecture(request, now);
+        lectureService.applyLecture(request.getUserId(),request.getLectureId(), now);
         //when
         ApplyHistory applyHistory = applyHistoryRepository.findByUserIdAndLectureId(userId, lectureId).get();
         //then
@@ -87,8 +87,8 @@ public class LectureIntegrateServiceTest {
                 .maxHeadCount(30)
                 .applyHeadCount(0)
                 .build();
-        lectureRepository.save(lecture);
-
+        Lecture lecture1 = lectureRepository.save(lecture);
+        System.out.println("**************************"+lecture1.getMaxHeadCount());
         ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -96,7 +96,9 @@ public class LectureIntegrateServiceTest {
             long localUserId = userId + i;
             executorService.submit(()->{
                 try {
-                    lectureService.applyLecture(new ApplyLectureRequest(localUserId,lectureId),now);
+                    lectureService.applyLecture(localUserId,lectureId,now);
+                }catch (Exception e){
+                    System.out.println("---------------------------------------");
                 }finally {
                     latch.countDown();
                 }
@@ -105,6 +107,7 @@ public class LectureIntegrateServiceTest {
         latch.await();
         //when
         Lecture savedLecture = lectureRepository.findById(lectureId).get();
+        System.out.println(savedLecture.getMaxHeadCount()+"*/******************************************");
         //then
         assertThat(savedLecture.getApplyHeadCount()).isEqualTo(30);
     }
@@ -141,7 +144,7 @@ public class LectureIntegrateServiceTest {
             long localUserId = userId + i;
             executorService.submit(() -> {
                 try {
-                    lectureService.applyLecture(new ApplyLectureRequest(localUserId,lectureId),now);
+                    lectureService.applyLecture(localUserId,lectureId,now);
                 } catch (RuntimeException e) {
                     System.out.println("예외 발생");
                     exceptionThrown.set(true);
@@ -180,7 +183,7 @@ public class LectureIntegrateServiceTest {
         applyHistoryRepository.save(new ApplyHistory(1L, userId, lectureId, LocalDateTime.now()));
         //when
         //then
-        assertThatThrownBy(()->lectureService.applyLecture(new ApplyLectureRequest(userId, lectureId),now))
+        assertThatThrownBy(()->lectureService.applyLecture(userId, lectureId,now))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("이미 등록한 특강입니다.");
     }

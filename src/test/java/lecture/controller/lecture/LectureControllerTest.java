@@ -4,10 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
+import lecture.domain.lecture.Lecture;
 import lecture.domain.lecture.LectureService;
+import lecture.domain.lecture.applyhistory.ApplyHistory;
+import lecture.domain.lecture.dto.ApplyLectureDto;
+import lecture.domain.user.User;
 import lecture.domain.user.UserService;
+import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,7 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,6 +57,8 @@ class LectureControllerTest {
                 .lectureTime("13:00")
                 .maxHeadCount(30)
                 .build();
+
+        given(lectureService.createLecture(any())).willReturn(request.toEntity());
         //when
         //then
         mockMvc.perform(post("/lectures")
@@ -212,6 +224,18 @@ class LectureControllerTest {
         long userId = 1L;
         long lectureId = 1L;
         ApplyLectureRequest request = new ApplyLectureRequest(userId,lectureId);
+
+        Lecture lecture = Lecture.builder()
+                .id(lectureId)
+                .name("강의")
+                .description("강의")
+                .lectureDate(LocalDate.of(2024, 06, 20))
+                .lectureTime("13:00")
+                .maxHeadCount(30)
+                .applyHeadCount(0)
+                .build();
+        ApplyLectureDto dto = new ApplyLectureDto(new User(userId,"인호"),lecture,new ApplyHistory(userId,lectureId));
+        given(lectureService.applyLecture(anyLong(),anyLong(), ArgumentMatchers.any(LocalDateTime.class))).willReturn(dto);
         //when
         //then
         mockMvc.perform(post("/lectures/apply")
@@ -223,7 +247,7 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("OK"))
-                .andExpect(jsonPath("$.data").isArray());
+                .andExpect(jsonPath("$.data").isMap());
 
     }
 
