@@ -1,5 +1,9 @@
 # 특강 신청 서비스
 
+## ERD
+![화면 캡처 2024-06-28 091052](https://github.com/InHo5389/lecture/assets/80667642/b5a0d25f-0279-45a0-b37e-e457990b3937)
+
+
 ## Description
 
 - `특강 신청 서비스`를 구현해 봅니다.
