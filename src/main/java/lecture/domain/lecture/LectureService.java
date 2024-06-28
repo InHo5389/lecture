@@ -2,6 +2,7 @@ package lecture.domain.lecture;
 
 import lecture.domain.applyhistory.ApplyHistory;
 import lecture.domain.applyhistory.ApplyHistoryRepository;
+import lecture.domain.applyhistory.dto.CompleteApplyDto;
 import lecture.domain.lecture.dto.ApplyLectureDto;
 import lecture.domain.lecture.dto.CreateLectureDto;
 import lecture.domain.schedule.Schedule;
@@ -54,9 +55,25 @@ public class LectureService {
     public List<Lecture> getLectures() {
         List<Lecture> lectureList = lectureRepository.findAll();
         for (Lecture lecture : lectureList) {
-            List<Schedule> schedules  = scheduleRepository.findByLectureId(lecture.getId());
+            List<Schedule> schedules = scheduleRepository.findByLectureId(lecture.getId());
             lecture.setScheduleList(schedules);
         }
         return lectureList;
+    }
+
+    public CompleteApplyDto completeApply(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("등록된 유저가 없습니다."));
+        ApplyHistory applyHistory = applyHistoryRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("특강 신청을 하나도 성공하지 못했습니다."));
+        Lecture lecture = lectureRepository.findById(applyHistory.getLecture().getId()).get();
+
+        return CompleteApplyDto.builder()
+                .userId(user.getId())
+                .name(user.getName())
+                .lectureId(lecture.getId())
+                .lectureName(lecture.getName())
+                .lectureDescription(lecture.getDescription())
+                .build();
     }
 }

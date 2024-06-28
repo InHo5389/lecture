@@ -11,6 +11,7 @@ import lecture.domain.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -152,6 +153,21 @@ class LectureServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getScheduleList()).hasSize(2);
         assertThat(result.get(1).getScheduleList()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("특강 신청 내역에 하나도 없을때 조회시 예외가 발생한다.")
+    void completeApplyWithOutApplyHistory(){
+        //given
+        long userId = 1L;
+        User user = new User(userId, "인호");
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(applyHistoryRepository.findByUserId(userId)).willReturn(Optional.empty());
+        //when
+        //then
+        assertThatThrownBy(()->lectureService.completeApply(userId))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("특강 신청을 하나도 성공하지 못했습니다.");
     }
 
     private Lecture createLecture(long id, CreateLectureRequest request) {

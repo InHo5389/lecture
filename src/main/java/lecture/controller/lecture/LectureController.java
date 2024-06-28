@@ -4,17 +4,16 @@ import jakarta.validation.Valid;
 import lecture.common.exception.ApiResponse;
 import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
+import lecture.controller.lecture.response.CompleteApplyLectureResponse;
 import lecture.controller.lecture.response.CreateLectureResponse;
 import lecture.controller.lecture.response.GetLectureResponse;
+import lecture.domain.applyhistory.dto.CompleteApplyDto;
 import lecture.domain.lecture.Lecture;
 import lecture.domain.lecture.LectureService;
 import lecture.domain.lecture.dto.ApplyLectureDto;
 import lecture.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +43,12 @@ public class LectureController {
         List<Lecture> lectures = lectureService.getLectures();
         List<GetLectureResponse> responses = lectures.stream().map(lecture -> GetLectureResponse.of(lecture)).collect(Collectors.toList());
         return ApiResponse.ok(responses);
+    }
+
+    @GetMapping("/lectures/application/{userId}")
+    public ApiResponse<CompleteApplyLectureResponse> completeApply(@PathVariable Long userId) {
+        CompleteApplyDto completeApplyDto = lectureService.completeApply(userId);
+        return ApiResponse.ok(CompleteApplyLectureResponse.of(completeApplyDto));
     }
 
     // todo 삭제

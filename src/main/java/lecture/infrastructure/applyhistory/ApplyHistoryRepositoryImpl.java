@@ -25,6 +25,11 @@ public class ApplyHistoryRepositoryImpl implements ApplyHistoryRepository {
     }
 
     @Override
+    public Optional<ApplyHistory> findByUserId(Long userId) {
+        return applyHistoryJpaRepository.findByUserId(userId);
+    }
+
+    @Override
     public void deleteAllInBatch() {
         applyHistoryJpaRepository.deleteAllInBatch();
     }

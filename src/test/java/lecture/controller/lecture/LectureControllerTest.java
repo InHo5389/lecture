@@ -5,6 +5,7 @@ import lecture.controller.lecture.request.ApplyLectureRequest;
 import lecture.controller.lecture.request.CreateLectureRequest;
 import lecture.controller.lecture.response.GetLectureResponse;
 import lecture.domain.applyhistory.ApplyHistory;
+import lecture.domain.applyhistory.dto.CompleteApplyDto;
 import lecture.domain.lecture.Lecture;
 import lecture.domain.lecture.LectureService;
 import lecture.domain.lecture.dto.ApplyLectureDto;
@@ -267,6 +268,32 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("OK"));
+    }
+
+    @Test
+    @DisplayName("신청 완료된 강의 여부를 조회한다.")
+    public void testCompleteApply() throws Exception {
+        // Mock 데이터 설정
+        Long userId = 1L;
+        CompleteApplyDto mockDto = CompleteApplyDto.builder()
+                .userId(userId)
+                .name("인호")
+                .lectureId(1L)
+                .lectureName("알고리즘 강의")
+                .lectureDescription("카카오 개발자가 알려주는 명확한 알고리즘")
+                .build();
+
+        // Mock Service 메서드 설정
+        when(lectureService.completeApply(anyLong())).thenReturn(mockDto);
+
+        // GET 요청 보내기
+        mockMvc.perform(get("/lectures/application/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.userId").value(mockDto.getUserId()))
+                .andExpect(jsonPath("$.data.name").value(mockDto.getName()))
+                .andExpect(jsonPath("$.data.lectureId").value(mockDto.getLectureId()))
+                .andExpect(jsonPath("$.data.lectureName").value(mockDto.getLectureName()))
+                .andExpect(jsonPath("$.data.lectureDescription").value(mockDto.getLectureDescription()));
     }
 
 }
